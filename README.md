@@ -171,8 +171,8 @@ Change your hosts in `/etc/hosts`
 echo "Subject: test" | sendmail -v me@my-domain.com
 ```
 
-
-----------------------------------------------------
+Automating frequent deployment task in Django with Fabric
+=========================================================
 
 ```
 {
