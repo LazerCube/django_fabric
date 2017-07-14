@@ -1,0 +1,12 @@
+[Unit]
+Description=gunicorn daemon
+After=network.target
+
+[Service]
+User=django
+Group=django
+WorkingDirectory=/home/django/myproject/project
+ExecStart=/home/django/.virtualenvs/myproject/bin/gunicorn --workers 3 --bind unix:/home/django/myproject/project/config/myproject.sock config.wsgi:application
+
+[Install]
+WantedBy=multi-user.target
