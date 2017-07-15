@@ -59,30 +59,28 @@ def install():
     require('stage', provided_by=(stable, development))
     require('settings', provided_by=(stable, development))
     # Set env.
-    env.vcs_type = project_settings['vcs_type']
     env.user = env.settings['user']
     env.host_string = env.settings['host']
 
+    # upgrade_system()
+    install_software()
     with hide('stderr', 'stdout', 'warnings', 'running'):
-        upgrade_system()
-        install_software()
-        with cd(env.settings['code_src_directory']):
-            pull_repository()
+        clone_repository()
         create_virtualenv()
         with virtualenv(env.settings['venv_directory']):
             with cd(env.settings['code_src_directory']):
-                collect_static()
                 install_requirements()
                 create_key()
                 create_database()
+                collect_static()
                 make_migrations()
                 migrate_models()
             deploy_fail2ban()
-            deploy_gunicorn(settings)
+            deploy_gunicorn()
             deploy_nginx()
             deploy_iptables()
         restart()
-        #restart_application()
+    #restart_application()
 
 @task
 def deploy(tests='yes'):
@@ -92,22 +90,21 @@ def deploy(tests='yes'):
     require('stage', provided_by=(stable, development))
     require('settings', provided_by=(stable, development))
     # Set env.
-    env.vcs_type = project_settings['vcs_type']
     env.user = env.settings['user']
     env.host_string = env.settings['host']
 
-    #with hide('stderr', 'stdout', 'warnings', 'running'):
-    if tests == 'yes':
-        with lcd(project_settings['local']['code_src_directory']):
-            run_tests()
-    with cd(env.settings['code_src_directory']):
-        pull_repository()
-    with virtualenv(env.settings['venv_directory']):
+    with hide('stderr', 'stdout', 'warnings', 'running'):
+        if tests == 'yes':
+            with lcd(project_settings['local']['code_src_directory']):
+                run_tests()
         with cd(env.settings['code_src_directory']):
-            collect_static()
-            install_requirements()
-            migrate_models()
-    restart_application()
+            pull_repository()
+        with virtualenv(env.settings['venv_directory']):
+            with cd(env.settings['code_src_directory']):
+                collect_static()
+                install_requirements()
+                migrate_models()
+        restart_application()
 
 def print_status(description):
     def print_status_decorator(fn):
@@ -135,10 +132,11 @@ def upgrade_system():
 
 @print_status('installing software')
 def install_software():
-    sudo('apt-get install -y git nginx python-dev python-pip libpq-dev postgresql postgresql-contrib fail2ban sendmail iptables-persistent')
-    sudo('pip install --upgrade pip')
+    sudo('apt-get install -y python-pip')
+    run('pip install --upgrade pip')
     sudo('pip install -U virtualenvwrapper')
-    append('.bash_profile'), ('export WORKON_HOME=/home/{0}/.virtualenvs'.format(env.user), 'source /usr/local/bin/virtualenvwrapper.sh')
+    sudo('apt-get install -y git iptables-persistent nginx libpq-dev postgresql postgresql-contrib fail2ban sendmail')
+    append(('/home/{0}/.bash_profile'.format(env.user)), ('export WORKON_HOME=/home/{0}/.virtualenvs'.format(env.user), 'source /usr/local/bin/virtualenvwrapper.sh'))
 
 @print_status('removing software')
 def remove_software():
@@ -150,7 +148,6 @@ def remove_software():
 @print_status('creating virtual environment')
 def create_virtualenv():
     run('mkvirtualenv %s' %(project_settings['project_name']))
-    run('setprojectdir .%s' %(env.settings['code_src_directory']))
 
 @print_status('removing virtual environment')
 def remove_virtualenv():
@@ -172,32 +169,21 @@ def run_tests():
     if result.failed:
         abort('Tests failed. Use deploy:tests=no to omit tests.')
 
-def pull_repository():
-    '''
-    Updates local repository, selecting the vcs from configuration file.
-    '''
-    if env.vcs_type == 'mercurial':
-        pull_mercurial_repository
-    elif env.vcs_type == 'git':
-        pull_git_repository
-    else:
-        abort(
-            'vcs type must be either mercurial or git,'
-            ' currently is: {vcs}'.format(vcs=env.vcs_type)
-        )
-
-@print_status('pulling mercurial repository')
-def pull_mercurial_repository():
-    run('hg pull -u')
-    run('hg up {branch}'.format(branch=env.settings['vcs_branch']))
-
 @print_status('pulling git repository')
-def pull_git_repository():
+def pull_repository():
     command = 'git pull {} {}'.format(
         env.project_settings.get('git_repository'),
         env.settings.get('vcs_branch')
     )
     run(command)
+
+def clone_repository():
+    command = 'git clone -b {} --single-branch {}'.format(
+        env.settings['vcs_branch'],
+        project_settings['git_repository'],
+    )
+    run(command)
+    # run('mkdir {0}'.format('/home/{0}/logs'.format(env.user)))
 
 @print_status('collecting static files')
 def collect_static():
@@ -205,8 +191,7 @@ def collect_static():
 
 @print_status('installing requirements')
 def install_requirements():
-    with cd(env.settings['code_src_directory']):
-        run('pip install -r {0}'.format(env.settings['requirements_file']))
+    run('pip install -r {0}.txt'.format(env.settings['requirements_file']))
 
 @print_status('making migrations')
 def make_migrations():
