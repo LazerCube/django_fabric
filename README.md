@@ -218,9 +218,9 @@ We keep a settings module with versioned settings files for each stage.
 }
 ```
 
-    **project name** - Name of the django project
-    **vcs_type** - 'mercurial' or 'git'
-    **git_repository** - If you're using git, put the name of the repo(usually 'origin'); otherwise just type 'None'
+**project name** - Name of the django project
+**vcs_type** - 'mercurial' or 'git'
+**git_repository** - If you're using git, put the name of the repo(usually 'origin'); otherwise just type 'None'
 
 ```
 {
@@ -237,14 +237,14 @@ We keep a settings module with versioned settings files for each stage.
 }
 ```
 
-    **name** - name of stage
-    **host** - hostname or IP address of your server
-    **user** - user to run your tasks
-    **vcs_branch** - branch to use for this installation; set according to your naming conventions, we stick to 'stable' and 'development'
-    **venv_directory** - path to your virtualenv; needed to run tasks in installation context
-    **requirement_file** - path to requirements file for this installation
-    **code_src_directory** - path to directory containing source code, in particular your manage.py file
-    **restart_command** - we use supervisord for keeping track of processes; in this case the command could be 'supervisorctl restart project_name'
+**name** - name of stage
+**host** - hostname or IP address of your server
+**user** - user to run your tasks
+**vcs_branch** - branch to use for this installation; set according to your naming conventions, we stick to 'stable' and 'development'
+**venv_directory** - path to your virtualenv; needed to run tasks in installation context
+**requirement_file** - path to requirements file for this installation
+**code_src_directory** - path to directory containing source code, in particular your manage.py file
+**restart_command** - we use supervisord for keeping track of processes; in this case the command could be 'supervisorctl restart project_name'
 
 The last section is specifically for local environment to provide paths for running tests:
 
@@ -257,5 +257,5 @@ The last section is specifically for local environment to provide paths for runn
 }
 ```
 
-    **code_src_directory** - path to directory containing source code, in particular your manage.py file
-    **venv_python_executable** - path to your Python executable; in case you work locally on a Windows machine
+**code_src_directory** - path to directory containing source code, in particular your manage.py file
+**venv_python_executable** - path to your Python executable; in case you work locally on a Windows machine
