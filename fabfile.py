@@ -1,4 +1,5 @@
 import json
+import string
 import random
 from datetime import datetime
 from posixpath import join
@@ -72,11 +73,11 @@ def install():
                 install_requirements()
                 create_key()
                 create_database()
-                collect_static()
+                deploy_gunicorn()
                 make_migrations()
                 migrate_models()
+                collect_static()
             deploy_fail2ban()
-            deploy_gunicorn()
             deploy_nginx()
             deploy_iptables()
         restart()
@@ -210,8 +211,6 @@ def create_database():
     sudo('psql -c "ALTER ROLE %s SET timezone TO \'UTC\';"' % (database_settings['database']['user']), user='postgres')
     sudo('psql -c "GRANT ALL PRIVILEGES ON DATABASE %s TO %s;"' % ((database_settings['database']['name']), (database_settings['database']['user'])), user='postgres')
 
-
-@print_status('creating secret key')
 def create_key():
     remove_key()
     append("/etc/secret_key.txt", "{0}".format(generate_key()), use_sudo=True)
