@@ -192,7 +192,7 @@ def collect_static():
 
 @print_status('installing requirements')
 def install_requirements():
-    run('pip install -r {0}.txt'.format(env.settings['requirements_file']))
+    run('pip install -r {0}'.format(env.settings['requirements_file']))
 
 @print_status('making migrations')
 def make_migrations():
