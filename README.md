@@ -176,15 +176,14 @@ Automating frequent deployment task in Django with Fabric
 
 ```
 {
-    "project_name": ,
-    "vcs_type": ,
-    "git_repository": ,
+    "project_name": "",
+    "git_repository": "",
     "stages": {
         "stable": {
             "name": "stable",
             "host": "",
             "user": "",
-            "vcs_branch": "",
+            "vcs_branch": "master",
             "venv_directory": "",
             "requirements_file": "",
             "code_src_directory": "",
@@ -204,8 +203,23 @@ Automating frequent deployment task in Django with Fabric
     "local": {
         "code_src_directory": "",
         "venv_python_executable": ""
+    },
+    "configs": {
+        "fail2ban": {
+            "config_src": "django_fabric/config/jail.local",
+            "config_directory": "/etc/fail2ban/"
+        },
+        "nginx": {
+            "config_src": "django_fabric/config/nginx.conf",
+            "config_directory": "/etc/nginx"
+        },
+        "gunicorn": {
+            "config_src": "django_fabric/bin/gunicorn.service",
+            "config_directory": "/etc/systemd/system"
+        }
     }
 }
+
 ```
 
 We keep a settings module with versioned settings files for each stage.
