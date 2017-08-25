@@ -1,28 +1,19 @@
+# Django Fabric Automating frequent deployment task in Django with Fabric - WIP
 
-Django Quickstart - Using fabric, Nginx and Gunicorn
-====================================================
+A git repository to automate frquent deployment tasks in django using Fabric. This repository can be used to turn a clean install of a Debian-based Linux OS into a working web server  capable of serving a Django project with only minimal configuring and pre-setup.
 
-A git repository to help you get up and running quickly with a Django 1.9 project and fabric, to automate administration task on a server. This repository can turn a clean install of a Debian-based Linux OS into a working web server  capable of serving a Django 1.9 project with only minimal configuring and pre-setup.
+## Getting Started
 
-Prerequisites
--------------
+A `project_settings.json` and `database_settings.json` file are required and should be customized for each project. **git will ignore these files as they contain sensitve information about the server.**
 
--   fabric
--   openssh-server
+### Prerequisites
 
+What things you need to install use the software
 
-Using fabric
--------------
-```
-fab <localhost/remote> <full_install/full_upgrade/full_upgrade>
-```
+-   Fabric (Client)
+-   Openssh-server (Server)
 
-When installing for the first time you must define a django config file to use.
-In order to do this put `:"<local/production/staging>"` after the your install command.
-For Example: `fab remote full_install:settings="production"` to use your project with its production settings.
-
-Installing fabric
------------------
+#### Installing fabric
 
 Fabric needs to be installed on the local machine. An easy way of installing Fabric is by using the default operating system package manager `aptitude`.
 
@@ -33,12 +24,11 @@ sudo aptitude install fabric
 # pip install fabric
 ```
 
-Installing/Setup for SSH
-------------------------
+#### Installing/Setup for SSH
 
 Fabric allows for excellent integration with SSH that allows for streamlining tasks using simple python scripts. SSH is also a key part of any server configuration.
 
-### Creating new user
+##### Creating new user
 
 By default the fabric file will want sign in as a user called "django", but this could be replace with any username you like as lone as you remember to update the fab file to the same name.
 
@@ -52,7 +42,7 @@ The fabric file will need to be able to run with with administrative privilege i
 sudo gpasswd -a django sudo
 ```
 
-### Installing SSH
+##### Installing SSH
 
 ```
 sudo apt-get update
@@ -65,7 +55,7 @@ Disable ufw to stop it creating items in iptables
 sudo ufw disable
 ```
 
-###  Adding Public Key Authentication
+#####  Adding Public Key Authentication
 
 To generate a new key pair, enter the following command at the terminal of your local machine (ie. your computer)
 
@@ -109,8 +99,7 @@ chmod 600 .ssh/authorized_keys
 You can now run `exit` to logout of your new user.
 
 
-Configuring SSH
----------------
+##### Configuring SSH
 
 Begin by creating a backup of the default config, just in case. Next, open the configuration file with your favorite text editor (for this example we will use nano).
 
@@ -154,10 +143,9 @@ Reload SSH
 service ssh restart
 ```
 
-mail service for Fail2ban
-------------------------------
+#### Mail service for Fail2ban
 
-### Hosts
+##### Hosts
 
 Change your hosts in `/etc/hosts`
 
@@ -165,14 +153,15 @@ Change your hosts in `/etc/hosts`
 127.0.0.1 <localhost.localdomain> localhost <yourhostname>
 ```
 
-### Testing
+##### Testing sendmail
 
 ```
 echo "Subject: test" | sendmail -v me@my-domain.com
 ```
 
-Automating frequent deployment task in Django with Fabric
-=========================================================
+## Config Files
+
+### project_settings.json
 
 ```
 {
@@ -233,8 +222,7 @@ We keep a settings module with versioned settings files for each stage.
 ```
 
 **project name** - Name of the django project
-**vcs_type** - 'mercurial' or 'git'
-**git_repository** - If you're using git, put the name of the repo(usually 'origin'); otherwise just type 'None'
+**git_repository** - Address to the git repository
 
 ```
 {
@@ -251,14 +239,14 @@ We keep a settings module with versioned settings files for each stage.
 }
 ```
 
-**name** - name of stage
-**host** - hostname or IP address of your server
-**user** - user to run your tasks
-**vcs_branch** - branch to use for this installation; set according to your naming conventions, we stick to 'stable' and 'development'
-**venv_directory** - path to your virtualenv; needed to run tasks in installation context
-**requirement_file** - path to requirements file for this installation
-**code_src_directory** - path to directory containing source code, in particular your manage.py file
-**restart_command** - we use supervisord for keeping track of processes; in this case the command could be 'supervisorctl restart project_name'
+**name** - Name of stage
+**host** - Hostname or IP address of your server
+**user** - User to run your tasks
+**vcs_branch** - Branch to use for this installation; set according to your naming conventions, we stick to 'stable' and 'development'
+**venv_directory** - Path to your virtualenv; needed to run tasks in installation context
+**requirement_file** - Path to requirements file for this installation
+**code_src_directory** - Path to directory containing source code, in particular your manage.py file
+**restart_command** - We use supervisord for keeping track of processes; in this case the command could be 'supervisorctl restart project_name'
 
 The last section is specifically for local environment to provide paths for running tests:
 
@@ -271,5 +259,26 @@ The last section is specifically for local environment to provide paths for runn
 }
 ```
 
-**code_src_directory** - path to directory containing source code, in particular your manage.py file
-**venv_python_executable** - path to your Python executable; in case you work locally on a Windows machine
+**code_src_directory** - Path to directory containing source code, in particular your manage.py file
+**venv_python_executable** - Path to your Python executable; in case you work locally on a Windows machine
+
+### database_settings.json
+
+```
+{
+    "database": {
+        "name":"",
+        "user":"",
+        "password":"",
+        "host":"",
+        "port":""
+    }
+}
+
+```
+
+**name** - Name of the database
+**user** - User for the database
+**password** - Password for the database
+**host** - Address the database is on
+**port** - Port the database is on
